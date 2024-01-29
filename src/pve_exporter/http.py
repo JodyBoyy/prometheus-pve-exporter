@@ -208,3 +208,4 @@ def start_http_server(config, gunicorn_options, collectors):
     print("Starting t2")
     t2.start()
     print("t2 Started")
+    t2.join()
