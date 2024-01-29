@@ -5,3 +5,5 @@ requests
 Werkzeug
 gunicorn
 paramiko
+flask
+flask_httpauth
