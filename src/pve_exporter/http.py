@@ -2,7 +2,7 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
      render_template, flash, jsonify, Response
 import requests
 from flask_httpauth import HTTPTokenAuth
-
+import threading
 """
 HTTP API for Proxmox VE prometheus collector.
 """
@@ -169,7 +169,7 @@ def start_http_server(config, gunicorn_options, collectors):
         duration.labels(module)
 
     app = PveExporterApplication(config, duration, errors, collectors)
-    StandaloneGunicornApplication(app, gunicorn_options).run()
+    t1 = threading.Thread(StandaloneGunicornApplication(app, gunicorn_options).run())
 
 
     app = Flask(__name__)
@@ -199,4 +199,7 @@ def start_http_server(config, gunicorn_options, collectors):
             # requests.get("https://127.0.0.1:9221/metrics")
         else:
             None
-    app.run(host="0.0.0.0", port=9222)
+    t2 = threading.Thread(app.run(host="0.0.0.0", port=9222))
+    
+    t1.start()
+    t2.start()
