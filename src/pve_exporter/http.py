@@ -1,8 +1,4 @@
-from flask import Flask, request, session, g, redirect, url_for, abort, \
-     render_template, flash, jsonify, Response
-import requests
-from flask_httpauth import HTTPTokenAuth
-import threading
+
 """
 HTTP API for Proxmox VE prometheus collector.
 """
@@ -169,43 +165,6 @@ def start_http_server(config, gunicorn_options, collectors):
         duration.labels(module)
 
     app = PveExporterApplication(config, duration, errors, collectors)
-    t1 = threading.Thread(StandaloneGunicornApplication(app, gunicorn_options).run())
+    StandaloneGunicornApplication(app, gunicorn_options).run()
 
 
-    app = Flask(__name__)
-
-    auth = HTTPTokenAuth(scheme='Bearer')
-
-    tokens = {
-        "secret-token-1": "john",
-        "secret-token-2": "susan"
-    }
-
-    @auth.verify_token
-    def verify_token(token):
-        if token in tokens:
-            return tokens[token]
-
-
-    @app.route('/<path:path>', methods=['GET'])
-    @auth.login_required
-    def proxy(path):
-        if auth.current_user():
-            resp = requests.get(f'http://127.0.0.1:9221/{path}')
-            excluded_headers = []
-            headers = [(name, value) for (name, value) in     resp.raw.headers.items() if name.lower() not in excluded_headers]
-            response = Response(resp.content, resp.status_code, headers)
-            return response
-            # requests.get("https://127.0.0.1:9221/metrics")
-        else:
-            None
-    t2 = threading.Thread(app.run(host="0.0.0.0", port=9222))
-    print("Threads SET")
-    
-    print("Starting t1")
-    t1.start()
-    print("t1 Started")
-    print("Starting t2")
-    t2.start()
-    print("t2 Started")
-    t2.join()
