@@ -1,3 +1,8 @@
+from flask import Flask, request, session, g, redirect, url_for, abort, \
+     render_template, flash, jsonify, Response
+import requests
+
+
 """
 HTTP API for Proxmox VE prometheus collector.
 """
@@ -165,3 +170,16 @@ def start_http_server(config, gunicorn_options, collectors):
 
     app = PveExporterApplication(config, duration, errors, collectors)
     StandaloneGunicornApplication(app, gunicorn_options).run()
+
+
+    app = Flask(__name__)
+
+    @app.route('/<path:path>', methods=['GET'])
+    def proxy(path):
+        resp = requests.get(f'http://127.0.0.1:9221/{path}')
+        excluded_headers = []
+        headers = [(name, value) for (name, value) in     resp.raw.headers.items() if name.lower() not in excluded_headers]
+        response = Response(resp.content, resp.status_code, headers)
+        return response
+        # requests.get("https://127.0.0.1:9221/metrics")
+    app.run(host="0.0.0.0", port=9222)

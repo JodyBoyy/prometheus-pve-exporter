@@ -51,10 +51,10 @@ def main():
                         help='Path to config file (/etc/prometheus/pve.yml)')
 
     parser.add_argument('--web.listen-address',
-                        dest="web_listen_address", default='[::]:9221',
+                        dest="web_listen_address", default='[127.0.0.1]:9221',
                         help=(
                             'Address on which to expose metrics and web server. '
-                            '([::]:9221)'
+                            '([127.0.0.1]:9221)'
                         ))
     parser.add_argument('--server.keyfile', dest='server_keyfile',
                         help='SSL key for server')
