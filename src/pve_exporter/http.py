@@ -200,6 +200,11 @@ def start_http_server(config, gunicorn_options, collectors):
         else:
             None
     t2 = threading.Thread(app.run(host="0.0.0.0", port=9222))
+    print("Threads SET")
     
+    print("Starting t1")
     t1.start()
+    print("t1 Started")
+    print("Starting t2")
     t2.start()
+    print("t2 Started")
